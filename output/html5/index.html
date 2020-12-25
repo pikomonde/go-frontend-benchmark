@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="wasm_exec.js"></script>
+        <script>
+            // Initialize
+            async function init() {
+                const go = new Go();
+                let result = await WebAssembly.instantiateStreaming(fetch("app.wasm"), go.importObject)
+                go.run(result.instance);
+            }
+            init();
+
+            // Test Functions
+            function fibonacciRecursiveJS(input) {
+                if ((input == 0) || (input == 1)) {
+                    return 1
+                }
+                return fibonacciRecursiveJS(input-2) + fibonacciRecursiveJS(input-1)
+            }
+            function factorialRecursiveJS(input) {
+                if ((input == 0) || (input == 1)) {
+                    return 1
+                }
+            	return input * factorialRecursiveJS(input-1)
+            }
+
+            // Running
+            function runFunc(func, funcName, nTest, input) {
+                let elapsedTime = 0.0;
+                for (let i=0; i< nTest; i++) {
+                    let startTime = performance.now();
+                    func(input)
+                    let endTime = performance.now();
+                    elapsedTime += (endTime - startTime);
+                }
+                console.log(funcName + ": " + elapsedTime.toFixed(4) + "ms");
+            }
+            function runAll() {
+                runFunc(factorialRecursiveInt64WASM, "factorialRecursiveInt64WASM", 1000, 20);
+                runFunc(factorialRecursiveIntWASM, "factorialRecursiveIntWASM", 1000, 20);
+                runFunc(factorialRecursiveInt8WASM, "factorialRecursiveInt8WASM", 1000, 20);
+                runFunc(factorialRecursiveJS, "factorialRecursiveJS", 1000, 20);
+                runFunc(fibonacciRecursiveInt64WASM, "fibonacciRecursiveInt64WASM", 1000, 20);
+                runFunc(fibonacciRecursiveIntWASM, "fibonacciRecursiveIntWASM", 1000, 20);
+                runFunc(fibonacciRecursiveInt8WASM, "fibonacciRecursiveInt8WASM", 1000, 20);
+                runFunc(fibonacciRecursiveJS, "fibonacciRecursiveJS", 1000, 20);
+            }
+
+
+            setTimeout(function(){
+                runAll();
+            }, 2000);
+        </script>
+    </head>
+</html>
